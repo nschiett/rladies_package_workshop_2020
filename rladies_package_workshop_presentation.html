@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>How to transfigure your code into an R package</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Nina M. D. Schiettekatte (@NinaSchiett)" />
+    <meta name="date" content="2020-02-18" />
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# How to transfigure your code into an R package
+## R ladies Montpellier 2020
+### Nina M. D. Schiettekatte (<span class="citation">@NinaSchiett</span>)
+### 2020-02-18
+
+---
+
+
+
+
+
+
+# How to transfigure your code into an R package
+&lt;br&gt;
+&lt;br&gt;
+
+.center[![](https://media.giphy.com/media/RNDUr1l83rYxfybMTV/giphy.gif)]
+
+---
+# Who has ever copypasted pieces of code? 
+
+.center[![:scale 50%](https://media.giphy.com/media/ule4vhcY1xEKQ/giphy.gif)]
+---
+**I used to think writing R packages was for advanced R wizards...**
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+
+
+.center[![](figures/hp_r.png)]
+---
+**Then one day I discovered that I too can develop R packages...**
+
+.center[![](https://media.giphy.com/media/pOuMMmewrKU1y/giphy.gif)]
+.center[
+![:scale 10%](figures/fishflux_logo.png) ![:scale 10%](figures/fishualize.png) ![:scale 10%](figures/fishgrowbot.png)
+]
+--
+
+.pull-left[** ... although not without difficulties! **
+.center[![](https://media.giphy.com/media/BJmTtZL4hova8/giphy.gif)]]
+--
+.pull-right[
+** Here's what I learned so far... **
+.center[![](https://media.giphy.com/media/J6UIGnb201MZaHHo9M/giphy.gif)]
+]
+--
+
+
+class: center
+
+---
+# On the menu
+
+
+&lt;br&gt;
+
+1) What is an R package and why do you want to make one?
+
+--
+
+&lt;br&gt;
+
+2) How does it work? 
+
+--
+
+&lt;br&gt;
+
+3) Coding time!
+
+---
+class: inverse, center, middle
+
+# What an R package?
+
+---
+# What is an R package?
+                    
+.pull-left[
+              
+- "*In R, the fundamental unit of shareable code is the package. A package bundles together code, data, documentation, and tests, and is easy to share with others.*" __ Hadley Wickham
+
+- There are now (9-01-2020) 15356 R packages on CRAN (Comprehensive R Archive Network) and many more on GitHub and Bioconductor!
+]
+.pull-right[
+.center[![](https://www.mitchelloharawild.com/blog/2018-07-10-hexwall_files/figure-html/final-1.png)]
+]
+
+--
+
+"*Seriously, it doesn’t have to be about sharing your code. It is about saving yourself time.*" __ Hillary Parker
+
+
+Hillary Parker's blog [post](https://hilaryparker.com/2014/04/29/writing-an-r-package-from-scratch/) on writing an R package is a great start!
+
+
+
+---
+# The Sisyphean workflow
+.pull-left[
+1) Write some code   
+2) Copy piece of code   
+3) Change some details  
+4) Start over   
+] 
+.pull-right[
+&lt;img src = https://www.kinesophy.com/wp-content/uploads/2013/01/sisyphus.jpg style="width: 50%" /&gt;]
+
+--
+
+```r
+df &lt;- data.frame(a = rnorm(10), 
+                 b = rnorm(10), 
+                 c = rnorm(10), 
+                 d = rnorm(10))
+
+df$a &lt;- (df$a - min(df$a, na.rm = TRUE)) / 
+  (max(df$a, na.rm = TRUE) - min(df$a, na.rm = TRUE))
+df$b &lt;- (df$b - min(df$b, na.rm = TRUE)) / 
+  (max(df$b, na.rm = TRUE) - min(df$a, na.rm = TRUE))
+df$c &lt;- (df$c - min(df$c, na.rm = TRUE)) / 
+  (max(df$c, na.rm = TRUE) - min(df$c, na.rm = TRUE))
+df$d &lt;- (df$d - min(df$d, na.rm = TRUE)) / 
+  (max(df$d, na.rm = TRUE) - min(df$d, na.rm = TRUE))
+```
+
+
+
+---
+
+
+# Optimize your workflow
+
+**functions** make your code reusable!     
+
+.pull-left[
+   
+   
+   
+Three key steps to creating a new function:
+- name
+- arguments
+- body
+
+]
+
+.pull-right[
+
+```r
+# Create function
+normalize &lt;- function(x){
+  min &lt;- min(x, na.rm = TRUE)
+  max &lt;- max(x, na.rm = TRUE)
+  (x - min)/(max - min)
+}
+# Apply function
+normalize(df$a)
+```
+]
+
+---
+      
+       
+# R package 
+
+
+.pull-left[
+
+- An R package is a collection of functions 
+
+
+- Make your life easier
+
+
+- Makes your work more reproducible
+
+
+- Make your code useful for others
+
+
+- It's a lot of fun!
+
+]
+--
+.pull-right[
+.center[
+**Workflow**
+
+
+![](figures/diagram.png)
+]
+]
+---
+
+class: inverse, center, middle
+
+# How does it work?
+
+
+
+---
+# Package structure 
+
+```
+mypackage.Rproj
+|___DESCRIPTION
+|___NAMESPACE
+|___README.md
+|___data/
+|
+|___R/
+|   |___my_function1.R
+|   |___my_function2.R
+|   |___my_function3.R
+|
+|___man/
+|   |___my_function1.Rd
+|   |___my_function2.Rd
+|   |___my_function3.Rd
+|
+|___vignettes/
+|    |___my_vignette.Rmd
+|
+|___.Rbuildignore
+```
+
+---
+# R/
+
+
+```r
+normalize &lt;- function(x){
+  min &lt;- min(x, na.rm = TRUE)
+  max &lt;- max(x, na.rm = TRUE)
+ (x - min)/(max - min)
+}
+```
+---
+# R/
+
+**Document!!!!**
+
+
+```r
+#' @title Normalization of a numeric vector
+#'
+#' @description Creates normalized values of a vector 
+#'
+#' @param x A numeric vector
+#' @return vector of normalized values
+#' @export
+#' @example 
+#' normalize(c(1,2,3,4,5))
+
+normalize &lt;- function(x){
+  min &lt;- min(x, na.rm = TRUE)
+  max &lt;- max(x, na.rm = TRUE)
+  (x - min)/(max - min)
+}
+```
+extra:
+
+```r
+#' @import
+#' @importFrom
+```
+
+---
+# R/
+
+**Beware of the error! **
+
+
+```r
+normalize(c(0, 2, 1, 10, 5, "a"))
+```
+
+```
+## Error in x - min: non-numeric argument to binary operator
+```
+
+.center[![](https://media.giphy.com/media/83LWb2PshIJ5C/giphy.gif)]
+
+---
+# R/
+
+
+```r
+normalize &lt;- function(x){
+  
+  if(!is.numeric(x)){
+    stop("x must be a numeric vector")
+  }
+  if(length(x) == 1){
+    warning("x has length 1, will return NA")
+  }
+  
+  min &lt;- min(x, na.rm = TRUE)
+  max &lt;- max(x, na.rm = TRUE)
+  (x - min)/(max - min)
+}
+
+normalize(c(0, 2, 1, 10, 5, "a"))
+```
+
+```
+## Error in normalize(c(0, 2, 1, 10, 5, "a")): x must be a numeric vector
+```
+
+```r
+normalize(c(3))
+```
+
+```
+## Warning in normalize(c(3)): x has length 1, will return NA
+```
+
+```
+## [1] NaN
+```
+---
+# man/
+
+```r
+devtools::document()
+roxygen2::roxygenize()
+```
+
+```
+|___R/
+|   |___my_function1.R
+|   |___my_function2.R
+|   |___my_function3.R
+|
+|___man/
+|   |___my_function1.Rd
+|   |___my_function2.Rd
+|   |___my_function3.Rd
+```
+
+
+---
+
+# DESCRIPTION
+```
+Package: my_package_name
+Type: Package
+Title: A beautiful package to do cool things
+Version: 0.0.999
+Authors@R: c(
+    person("Nina", "Schiettekatte", 
+    email = "nina.schiettekatte@gmail.com", 
+    role = c("cre", "aut")))
+Description: This is a package to do cool things.
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+Depends:
+    R (&gt;= 2.10)
+Suggests:
+    testthat,
+    knitr,
+    rmarkdown,
+    rfishbase
+Imports: 
+    ggplot2 (&gt;= 1.0.1),
+    dplyr
+RoxygenNote: 6.1.1
+```
+---
+# Namespace
+```
+# Generated by roxygen2: do not edit by hand
+
+export(fish)
+export(fish_pal)
+export(fish_palettes)
+export(fishualize)
+export(scale_color_fish)
+export(scale_color_fish_d)
+export(scale_colour_fish)
+export(scale_colour_fish_d)
+export(scale_fill_fish)
+export(scale_fill_fish_d)
+importFrom(ggplot2,discrete_scale)
+importFrom(ggplot2,scale_color_gradientn)
+importFrom(ggplot2,scale_fill_gradientn)
+importFrom(graphics,image)
+importFrom(gridExtra,grid.arrange)
+```
+---
+# Workflow   
+
+.pull-left[
+
+1) Set up project
+
+2) Add a function with roxygen header
+    
+3) devtools::document()
+     
+4) devtools::load_all()  
+    
+5) check manually + devtools::check()  
+    
+6) devtools::install()
+
+7) Go back to step 2
+
+] 
+--
+.pull-right[
+Hooray! A basic functioning package!
+   
+![](https://media.giphy.com/media/apDjJjnjAGpQQ/giphy.gif)
+But there is more...
+]
+---
+# Use version control! 
+
+**Git** is a version control system   
+--&gt; Track changes
+
+
+```r
+usethis::use_git()
+```
+   
+**GitHub** (or Bitbucket or GitLab) is a hosting service for your git-based project on the internet
+- Like a back up for your r projects with a memory
+- Share your code
+- Collaborate with others
+
+(It's like dropbox but a lot better!)
+  
+
+```r
+usethis::use_github()
+```
+
+Check out this [link](https://happygitwithr.com/) for a great guide for using Git and GitHub with R by Jenny Brian and Jim Hester
+
+---
+# Continuous integration with travis
+
+.pull-left[
+- Every time you push a a commit to GitHub, travis R CMD check will run behind the scene
+- Allows you to automatically check your package on other platforms (such as ubuntu)
+- Gives you a beautiful green badge on GitHub      
+]
+.pull-right[
+.center[
+![:scale 50%](https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcRHQ-FD4GAuQKToSVnBET3ArYnafvJf_h223lIbUwxCcYdqtZet)
+]
+]
+--
+.center[![:scale 30%](https://i.imgflip.com/14hqh5.jpg)
+]
+- See blog [post](https://juliasilge.com/blog/beginners-guide-to-travis/) by Julia Silge for a beginner's guide to Travis-CI for R
+- Brand new alternative: GitHub [actions](https://github.com/features/actions)
+
+
+---
+# Add a README
+
+The goal of the README.md is to answer the following questions about your package:
+
+- Why should I use it? 
+- How do I use it?
+- How do I get it?
+     
+On GitHub, the README.md will be rendered as HTML and displayed on the repository home page
+
+
+
+```r
+usethis::use_readme_rmd()
+```
+
+---
+# Vignettes
+
+A vignette is a long-form guide to your package
+   
+
+
+```r
+usethis::use_vignette("name", title = "my_title")
+devtools::build_vignettes()
+```
+
+To browse existing vignettes:
+
+```r
+browseVignettes("packagename")
+```
+[example](https://cran.r-project.org/web/packages/dplyr/vignettes/dplyr.html): introduction to dplyr
+
+---
+
+# Advanced testing
+
+.pull-left[
+
+```r
+usethis::use_testthat()
+usethis::use_test("name") 
+```
+
+]
+.pull-right[
+.center[![](https://raw.githubusercontent.com/r-lib/testthat/master/man/figures/logo.png)
+]]
+--
+Example test in stringr on function **str_length()**
+
+```r
+context("String length")
+
+test_that("str_length is number of characters", {
+  expect_equal(str_length("a"), 1)
+  expect_equal(str_length("ab"), 2)
+  expect_equal(str_length("abc"), 3)
+})
+```
+    
+Run **devtools::test()** to perform all your tests
+   
+Check out this [chapter](http://r-pkgs.had.co.nz/tests.html) on testing inside the book on R packages by Hadley Wickham
+
+---
+# Note on style
+
+.pull-left[
+- Good coding style is like correct punctuation   
+ 
+- Unspoken rules  
+  
+- Makes code easier to read AND write
+
+- Spacing!!!
+
+- Lines of code shouldn't be too long
+]
+
+.pull-right[
+.center[
+![:scale 70%](https://i.pinimg.com/originals/e9/81/14/e98114d52f045043debcbcb170a1818c.jpg)
+]]
+
+---
+# Note on style
+
+.pull-left[
+The tidyverse style [guide](https://style.tidyverse.org/) contains everything you need to know!
+       
+Packages to help you: 
+      
+- [lintr](https://github.com/jimhester/lintr) performs automated checks to confirm that you conform to the style guide    
+             
+- [styler](https://styler.r-lib.org/) allows you to interactively restyle selected text, files, or entire projects
+]
+.pull-right[
+ ![](https://i0.wp.com/irudnyts.github.io/images/posts/2019-01-14-r-coding-style-guide/assignment.jpg)
+]
+---
+# Note on style  
+       
+![](figures/lintr_example.png)
+
+
+---
+# Create a website
+   
+
+```r
+pkgdown::build_site()
+```
+
+For example: [link](https://nschiett.github.io/fishualize/index.html)
+
+---
+# Note on tidyverse programming 
+
+```r
+library(ggplot2)
+custom_plot &lt;- function(data, var_x, var_y, var_fill){
+  ggplot(data) +
+    geom_boxplot(aes(x = var_x, y = var_y, fill = var_fill))
+}
+
+custom_plot(mpg, class, hwy, drv)
+## Error in FUN(X[[i]], ...): object 'hwy' not found
+```
+
+
+```r
+## Solution: use .data[[]]
+custom_plot &lt;- function(data, var_x, var_y, var_fill){
+  ggplot(data) +
+    geom_boxplot(aes(x = .data[[var_x]], y = .data[[var_y]], 
+                     fill = .data[[var_fill]])) +
+    labs(x = var_x, y = var_y, fill = var_fill)
+}
+custom_plot(mpg, "class", "hwy", "drv")
+```
+
+---
+# Add some niceness
+
+Build friendly R packages that praise their users if they have done something good with [praise](https://github.com/rladies/praise)
+
+
+```r
+devtools::install_github("gaborcsardi/praise")
+```
+
+
+```r
+library(praise)
+praise()
+```
+
+```
+## [1] "You are exciting!"
+```
+     
+You can supply a template, and praise() fills in random words of the specified part of speech:
+    
+
+```r
+praise("${EXCLAMATION}! You have done this ${adverb_manner}!")
+```
+
+```
+## [1] "HOORAY! You have done this cautiously!"
+```
+
+---
+### Recap: devtools &amp; roxygen2 &amp; usethis
+
+```r
+# one time set up
+usethis::create_package("~/mypath/mypackage")
+usethis::use_git()
+usethis::use_github()
+usethis::use_mit_license() # or other
+usethis::use_readme_rmd()
+usethis::use_travis()
+usethis::use_testthat()
+usethis::use_data_raw()
+# develop
+usethis::use_r("function_name")
+devtools::document()
+devtools::load_all()
+devtools::check()
+devtools::install()
+# more
+usethis::use_data(dataframe)  
+usethis::use_test("function_name")
+devtools::test()
+usethis::use_package("dplyr") 
+usethis::use_vignette("How to do this cool analysis")
+pkgdown::build_site()
+```
+
+See Emil Hvitfeldt's [blog](https://www.hvitfeldt.me/blog/usethis-workflow-for-package-development/) and Nicolas Casajus' [presentation](https://frbcesab.github.io/datatoolbox/courses/r-packages/index.html)
+---
+# Resources
+- Hadley Wickham's book on R packages [link](http://r-pkgs.had.co.nz/) (Really it has everything you need!)
+- Hillary Parker's blog [post](https://hilaryparker.com/2014/04/29/writing-an-r-package-from-scratch/) on writing an R package is a great start!
+- Everything you need to know about git and GitHub [link](https://happygitwithr.com/) 
+- blog [post](https://juliasilge.com/blog/beginners-guide-to-travis/) by Julia Silge to get started with Travis-CI 
+- The tidyverse style [guide](https://style.tidyverse.org/) 
+- Packages to help you be stylish in R:  [lintr](https://github.com/jimhester/lintr) and  [styler](https://styler.r-lib.org/) 
+- Add some complements: [praise](https://github.com/rladies/praise)
+- Blog by Emil Hvitfeldt on creating R packages with usethis [blog](https://www.hvitfeldt.me/blog/usethis-workflow-for-package-development/)
+- Presentation by Nicolas Casajus (in French :) ) [link](https://frbcesab.github.io/datatoolbox/courses/r-packages/index.html)
+- [talk](https://resources.rstudio.com/rstudio-conf-2020/object-of-type-closure-is-not-subsettable-jenny-bryan) on debugging by Jenny Brian
+- [talk](https://resources.rstudio.com/rstudio-conf-2020/best-practices-for-programming-with-ggplot2-dewey-dunnington) on best practices for programming with ggplot2 by Dewey Dunnington
+- Submitting to [CRAN](https://cran.r-project.org/submit.html)
+- GitHub [actions](https://github.com/features/actions)
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="libs/macros.js"></script>
+<script>var slideshow = remark.create({
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+<style>
+.logo {
+  background-image: url(figures/rainbow.png);
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  width: 90px;
+  height: 90px;
+  z-index: 0;
+}
+</style>
+
+<script>
+document
+  .querySelectorAll(
+    '.remark-slide-content' +
+    ':not(.title-slide)' +
+    // add additional classes to exclude here, e.g.
+    // ':not(.inverse)' +
+    ':not(.hide-logo)'
+  )
+  .forEach(el => {
+    el.innerHTML += '<div class="logo"></div>';
+  });
+</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
