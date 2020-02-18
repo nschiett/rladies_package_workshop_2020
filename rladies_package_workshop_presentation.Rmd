@@ -659,7 +659,7 @@ class: inverse, center, middle
 
 # Now let's make an R package!
 
-
+![:scale 70%](https://media.giphy.com/media/11errrffIzGatO/giphy.gif)
 
 
 
