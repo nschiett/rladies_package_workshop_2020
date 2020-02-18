@@ -38,3 +38,10 @@ library(usethis)
     [blog](https://www.hvitfeldt.me/blog/usethis-workflow-for-package-development/)
   - Presentation by Nicolas Casajus (in French :) )
     [link](https://frbcesab.github.io/datatoolbox/courses/r-packages/index.html)
+  - [talk](https://resources.rstudio.com/rstudio-conf-2020/object-of-type-closure-is-not-subsettable-jenny-bryan)
+    on debugging by Jenny
+    Brian
+  - [talk](https://resources.rstudio.com/rstudio-conf-2020/best-practices-for-programming-with-ggplot2-dewey-dunnington)
+    on best practices for programming with ggplot2 by Dewey Dunnington
+  - Submitting to [CRAN](https://cran.r-project.org/submit.html)
+  - GitHub [actions](https://github.com/features/actions)
