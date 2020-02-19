@@ -91,7 +91,7 @@ class: center
 ---
 class: inverse, center, middle
 
-# What an R package?
+# What is an R package?
 
 ---
 # What is an R package?
